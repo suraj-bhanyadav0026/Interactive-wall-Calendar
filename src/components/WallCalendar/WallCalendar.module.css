@@ -1,0 +1,499 @@
+/* === FILE: WallCalendar.module.css === */
+
+.calendarContainer {
+  /* Default Light Theme */
+  --paper: #faf8f3;
+  --ink: #1a1a1a;
+  --ink-light: #6b6b6b;
+  --ink-muted: #a1a1aa;
+  --accent: #2563eb;
+  --accent-warm: #e85d26;
+  --range-fill: rgba(37, 99, 235, 0.10);
+  --range-start: #2563eb;
+  --range-end: #2563eb;
+  --today-ring: #e85d26;
+  --shadow-1: rgba(0, 0, 0, 0.08);
+  --shadow-2: rgba(0, 0, 0, 0.12);
+  --shadow-3: rgba(0, 0, 0, 0.16);
+  --hero-overlay: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 60%);
+
+  /* Typography */
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
+  
+  width: 100%;
+  max-width: 780px;
+  margin: 40px auto;
+  perspective: 1200px; /* For the page flip */
+  
+  transition: all 300ms ease;
+}
+
+/* Dark Theme */
+.calendarContainer[data-theme="dark"] {
+  --paper: #1a1a2a;
+  --ink: #e8e6e0;
+  --ink-light: #9ca3af;
+  --ink-muted: #6b7280;
+  --accent: #60a5fa;
+  --accent-warm: #f97316;
+  --range-fill: rgba(96, 165, 250, 0.20);
+  --range-start: #60a5fa;
+  --range-end: #60a5fa;
+  --today-ring: #fb923c;
+  --shadow-1: rgba(0, 0, 0, 0.5);
+  --shadow-2: rgba(0, 0, 0, 0.6);
+  --shadow-3: rgba(0, 0, 0, 0.8);
+  --hero-overlay: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%);
+}
+
+/* Sepia Theme */
+.calendarContainer[data-theme="sepia"] {
+  --paper: #f5edd6;
+  --ink: #3d2b1f;
+  --ink-light: #7b6354;
+  --ink-muted: #a68c7e;
+  --accent: #a0522d;
+  --accent-warm: #8b0000;
+  --range-fill: rgba(160, 82, 45, 0.15);
+  --range-start: #a0522d;
+  --range-end: #a0522d;
+  --today-ring: #8b0000;
+  --shadow-1: rgba(61, 43, 31, 0.1);
+  --shadow-2: rgba(61, 43, 31, 0.15);
+  --shadow-3: rgba(61, 43, 31, 0.2);
+  --hero-overlay: linear-gradient(to top, rgba(61,43,31,0.8) 0%, rgba(61,43,31,0.1) 60%);
+}
+
+.calendarCard {
+  background: var(--paper);
+  border-radius: 4px 4px 8px 8px;
+  box-shadow: 
+    0 2px 4px var(--shadow-1),
+    0 8px 16px var(--shadow-2),
+    0 24px 48px var(--shadow-3);
+  position: relative;
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  overflow: hidden;
+}
+
+/* Paper texture via pseudo-element */
+.calendarBody {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  transition: background 300ms, color 300ms;
+}
+
+.calendarBody::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg, 
+    transparent, 
+    transparent 2px, 
+    rgba(128, 128, 128, 0.02) 2px, 
+    rgba(128, 128, 128, 0.02) 4px
+  );
+  z-index: 10;
+  opacity: 0.8;
+}
+
+/* Page flip animation */
+.isFlippingOut { animation: flipOut 250ms ease-in forwards; }
+.isFlippingIn { animation: flipIn 250ms ease-out forwards; }
+
+@keyframes flipOut {
+  0%   { transform: rotateX(0deg); opacity: 1; }
+  100% { transform: rotateX(90deg); opacity: 0; }
+}
+@keyframes flipIn {
+  0%   { transform: rotateX(-90deg); opacity: 0; }
+  100% { transform: rotateX(0deg); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isFlippingOut { animation: none; opacity: 0; }
+  .isFlippingIn { animation: none; opacity: 1; }
+}
+
+/* === Headers & Top Nav === */
+.toolsStrip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--paper);
+  border-bottom: 1px solid rgba(128,128,128,0.1);
+  font-family: var(--font-sans);
+}
+
+.navGroup, .themeGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconButton {
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms;
+}
+.iconButton:hover {
+  background: rgba(128,128,128,0.1);
+}
+.todayButton {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--ink-light);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 150ms;
+}
+.todayButton:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.themeSwatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(128,128,128,0.2);
+  cursor: pointer;
+  padding: 0;
+}
+.themeSwatch[data-active="true"] {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* === Layout Grid === */
+.mainLayout {
+  display: grid;
+  grid-template-columns: 28% 1fr;
+  gap: 0;
+  min-height: 480px;
+}
+
+@media (max-width: 767px) {
+  .mainLayout { grid-template-columns: 1fr; }
+  .notesColumn { border-right: none !important; border-top: 1px solid rgba(128,128,128,0.2); }
+}
+
+.notesColumn {
+  border-right: 1px solid rgba(128,128,128,0.1);
+  padding: 24px;
+  background: rgba(128,128,128,0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.calendarGridColumn {
+  padding: 24px;
+}
+
+/* === Calendar Grid === */
+.weekdaysHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 12px;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--ink-light);
+  text-transform: uppercase;
+}
+.withWeekNumbers .weekdaysHeader {
+  grid-template-columns: 30px repeat(7, 1fr);
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minMax(60px, auto);
+  gap: 4px 0; /* Vertical gap only, horizontal needs to be tight for pills */
+}
+.withWeekNumbers .daysGrid {
+  grid-template-columns: 30px repeat(7, 1fr);
+}
+
+.weekNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+}
+
+.dayCellWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: 48px;
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+/* State styling via custom property trick for pseudo element pills */
+.dayCellWrapper.inRange::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  background-color: var(--range-fill);
+  z-index: 1;
+}
+.dayCellWrapper.selectionStart::before {
+  left: 50%;
+  border-radius: 20px 0 0 20px;
+}
+.dayCellWrapper.selectionEnd::before {
+  right: 50%;
+  border-radius: 0 20px 20px 0;
+}
+.dayCellWrapper.selectionStart.selectionEnd::before {
+  display: none;
+}
+
+.dayContent {
+  position: relative;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1rem;
+  transition: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Staggered ink drop */
+@keyframes inkDrop {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.staggerEnter {
+  animation: inkDrop 300ms ease-out backwards;
+}
+
+.dayCellWrapper:hover .dayContent:not(.selected) {
+  background-color: rgba(128,128,128,0.1);
+  transform: scale(1.05);
+}
+
+.isOtherMonth .dayContent { color: var(--ink-muted); }
+.isWeekend .dayContent { color: var(--accent-warm); }
+.isToday .dayContent {
+  box-shadow: inset 0 0 0 2px var(--today-ring);
+  font-weight: 600;
+}
+
+/* Selected state overrides */
+.selected .dayContent {
+  background-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  transform: scale(1.1);
+}
+
+/* Holidays */
+.holidayDot {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  z-index: 3;
+}
+.holidayNational { background-color: #ef4444; }
+.holidayFestival { background-color: #eab308; }
+
+/* Tooltip on hover */
+.dayCellWrapper:hover[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* === Notes Panel === */
+.notesHeader {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  margin-bottom: 16px;
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+.textarea {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
+  border: 1px solid rgba(128,128,128,0.2);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.5);
+  resize: vertical;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+[data-theme="dark"] .textarea { background: rgba(0,0,0,0.2); color: var(--ink); }
+
+.saveBtn {
+  width: 100%;
+  padding: 10px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: opacity 150ms;
+}
+.saveBtn:hover { opacity: 0.9; }
+
+.savedNotesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.noteCard {
+  padding: 12px;
+  background: var(--paper);
+  border: 1px solid rgba(128,128,128,0.2);
+  border-radius: 6px;
+  border-left: 4px solid var(--note-color, var(--accent));
+  cursor: pointer;
+  animation: slideInLeft 300ms ease-out;
+  transition: transform 150ms;
+}
+.noteCard:hover {
+  transform: translateX(4px);
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.noteLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-light);
+  margin-bottom: 4px;
+}
+.notePreview {
+  font-size: 0.85rem;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  animation: toastSlide 2s ease-in-out forwards;
+  z-index: 100;
+}
+
+@keyframes toastSlide {
+  0% { transform: translateY(100px); opacity: 0; }
+  10% { transform: translateY(0); opacity: 1; }
+  80% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(20px); opacity: 0; }
+}
+
+/* Stats */
+.statsStrip {
+  font-size: 0.8rem;
+  color: var(--ink-light);
+  padding: 12px 24px;
+  background: rgba(128,128,128,0.03);
+  border-top: 1px solid rgba(128,128,128,0.1);
+  text-align: center;
+  animation: slideUp 300ms ease-out;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Notes accordion (mobile) */
+.notesToggle {
+  display: none;  /* hidden on desktop */
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+.toggleIcon {
+  margin-left: 8px;
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+}
+.notesPanelBody {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+  .dayContent { width: 32px; height: 32px; font-size: 0.85rem; }
+  .daysGrid { grid-auto-rows: minMax(40px, auto); }
+  .dayCellWrapper { height: 40px; }
+  .calendarGridColumn { padding: 12px; }
+  .notesColumn { padding: 16px; }
+  .toolsStrip { padding: 12px; flex-wrap: wrap; gap: 8px; }
+  .iconButton { width: 44px; height: 44px; } /* larger touch targets */
+  /* Show accordion toggle on mobile */
+  .notesToggle { display: block; }
+  .notesPanelBody { display: none; }
+  .notesPanelBody.expanded { display: flex; }
+}
